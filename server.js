@@ -1,21 +1,25 @@
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const mongoose = require('mongoose');
 
 const app = express();
 app.use(express.json());
 
-// Connect MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/typingApp')
+
+// mongoose.connect('mongodb://127.0.0.1:27017/typingApp')
+// .then(() => console.log("DB Connected"))
+// .catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("DB Connected"))
 .catch(err => console.log(err));
 
-// Test route
-//app.get('/', (req, res) => {
-   // res.send("Server is running 🚀");
-//});
+// app.listen(3000, () => {
+//     console.log("Server running on port 3000");
+// });
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
 
 app.post('/register', async (req, res) => {
@@ -80,7 +84,7 @@ app.post('/login', async (req, res) => {
 const path = require('path');
 
 app.use(express.static('public'));
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 const Text = require('./models/Text');
 
 app.post('/save', async (req, res) => {
@@ -91,13 +95,12 @@ app.post('/save', async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        // ✅ Decode token
-        const decoded = jwt.verify(token, "secretkey");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const { content, startTime, endTime, duration, pasteCount, pastedTextLength,totalKeystrokes} = req.body;
 
         const newSession = new Text({
-            userId: decoded.id,   // 🔥 link to user
+            userId: decoded.id,  
             content,
             startTime,
             endTime,
@@ -125,7 +128,8 @@ app.get('/my-sessions', async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        const decoded = jwt.verify(token, "secretkey");
+        const decoded = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
 
         const sessions = await Text.find({ userId: decoded.id });
 
