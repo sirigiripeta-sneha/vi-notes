@@ -1,4 +1,0 @@
-This project is a basic writing editor where users can write, save, and retrieve text.
-It demonstrates how frontend and backend communicate with each other.
-The frontend allows users to input content, while the backend handles storing and retrieving data.
-This project forms the foundation for real-world applications like note-taking apps, blogging platforms, and content management systems.
